@@ -185,12 +185,3 @@ classDiagram
   RegistroDePresenca ..> Aluno : referencia por AlunoId
 ```
 
-## Checklist de Aceitação
-
-- [x] VOs imutáveis e com igualdade por valor.
-- [x] Domínio rico com operações de negócio em métodos.
-- [x] Aggregate Root definida.
-- [x] Repositório expõe apenas a Aggregate Root.
-- [x] Eventos de domínio definidos.
-- [x] Invariantes protegidas dentro do domínio.
-- [x] Diagrama incluído.
