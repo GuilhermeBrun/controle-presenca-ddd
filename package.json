@@ -1,0 +1,13 @@
+{
+  "name": "controle-presenca-ddd",
+  "version": "1.0.0",
+  "description": "Implementacao em TypeScript do trabalho de DDD tatico para Controle de Presenca.",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0"
+  }
+}
