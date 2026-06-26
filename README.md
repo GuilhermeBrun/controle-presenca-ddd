@@ -1,6 +1,6 @@
 # Trabalho — Design Tático no DDD
 
-Implementação em TypeScript do domínio **Controle de Presença**, usando Entidades, Value Objects, Aggregate Root, Repositório, Eventos de Domínio e invariantes de negócio.
+Implementação em TypeScript do domínio **Controle de Presença**, usando Entidades, Value Objects, Aggregate Root, Repositório, Eventos de Domínio e invariantes de negócio. O projeto também inclui uma pequena modelagem do contexto **Gestão Acadêmica** para representar `Pessoa`, `Aluno` e `Professor`.
 
 ## 1) Sobre o Domínio Escolhido
 
@@ -26,11 +26,18 @@ Legenda: **U** = Upstream, **D** = Downstream, **ACL** = Anti-Corruption Layer.
 
 | Elemento | Tipo | Por quê? |
 |---|---|---|
-| Chamada | Entidade / Aggregate Root | Possui identidade própria e ciclo de vida: planejada, aberta e encerrada. |
-| RegistroDePresenca | Entidade interna | Representa o registro individual de um aluno em uma chamada. |
-| CodigoChamada | Value Object | É imutável e validado pelo valor, com 6 caracteres alfanuméricos. |
-| JanelaResposta | Value Object | Representa início e fim do período de resposta, com igualdade por valor. |
-| AlunoId, ProfessorId, TurmaId, AulaId | Value Object | São identificadores semânticos usados para referenciar outros agregados por ID. |
+| `Pessoa` | Entidade abstrata | Possui identidade e concentra dados comuns de pessoas, como nome e e-mail. |
+| `Aluno` | Entidade | É uma pessoa com matrícula acadêmica. |
+| `Professor` | Entidade | É uma pessoa com registro docente. |
+| `Chamada` | Entidade / Aggregate Root | Possui identidade própria e ciclo de vida: planejada, aberta e encerrada. |
+| `RegistroDePresenca` | Entidade interna | Possui identidade própria dentro da chamada e representa o registro individual de um aluno. |
+| `CodigoChamada` | Value Object | É imutável e validado pelo valor, com 6 caracteres alfanuméricos. |
+| `JanelaResposta` | Value Object | Representa início e fim do período de resposta, com igualdade por valor. |
+| `NomePessoa` | Value Object | Representa um nome validado e comparado por valor. |
+| `EmailInstitucional` | Value Object | Representa um e-mail validado e comparado por valor. |
+| `AlunoId`, `ProfessorId`, `TurmaId`, `AulaId` | Value Object | São identificadores semânticos usados para referenciar outros agregados por ID. |
+
+`Aluno` e `Professor` herdam de `Pessoa` porque compartilham dados comuns. Mesmo assim, eles não ficam dentro do agregado `Chamada`; a chamada mantém apenas `AlunoId` e `ProfessorId`.
 
 ## 3) Agregados e Aggregate Root
 
@@ -51,6 +58,16 @@ Legenda: **U** = Upstream, **D** = Downstream, **ACL** = Anti-Corruption Layer.
 - `AlunoId`
 
 O agregado `Chamada` não contém objetos completos de aluno, professor, turma ou aula. Ele guarda apenas os IDs, porque esses conceitos pertencem ao contexto de Gestão Acadêmica.
+
+**Contexto Gestão Acadêmica:**
+
+```text
+Pessoa
+├── Aluno
+└── Professor
+```
+
+`Pessoa` é uma entidade abstrata usada para compartilhar atributos comuns. `Aluno` e `Professor` são entidades diferentes porque possuem papéis e dados específicos no domínio acadêmico.
 
 ## 4) Invariantes e Máquina de Estados
 
@@ -116,12 +133,13 @@ npm start
 
 O arquivo `src/index.ts` demonstra o fluxo:
 
-1. cria uma chamada;
-2. abre a chamada com código e janela de resposta;
-3. registra presença de dois alunos;
-4. encerra a chamada;
-5. gera falta para o aluno ausente;
-6. exibe os eventos gerados.
+1. cria um professor e três alunos no contexto de Gestão Acadêmica;
+2. cria uma chamada usando apenas os IDs do professor e dos alunos;
+3. abre a chamada com código e janela de resposta;
+4. registra presença de dois alunos;
+5. encerra a chamada;
+6. gera falta para o aluno ausente;
+7. exibe os eventos gerados.
 
 ## 8) Diagrama
 
@@ -139,9 +157,26 @@ classDiagram
   }
 
   class RegistroDePresenca {
+    +RegistroDePresencaId id
     +AlunoId alunoId
     +TipoRegistroPresenca tipo
     +Date registradoEm
+  }
+
+  class Pessoa {
+    +EntityId id
+    +NomePessoa nome
+    +EmailInstitucional email
+  }
+
+  class Aluno {
+    +AlunoId id
+    +string matricula
+  }
+
+  class Professor {
+    +ProfessorId id
+    +string registroDocente
   }
 
   class CodigoChamada {
@@ -179,6 +214,8 @@ classDiagram
   Chamada --> Turma : por Id
   Chamada --> Professor : por Id
   Chamada --> Aluno : por Id
+  Pessoa <|-- Aluno
+  Pessoa <|-- Professor
 ```
 
 ## Checklist de Aceitação

@@ -1,21 +1,21 @@
 import { DomainError } from "./DomainError.js";
 
-export class EntityId {
-  private constructor(public readonly value: string) {}
+export abstract class EntityId {
+  protected constructor(public readonly value: string) {}
 
-  static create(value: string): EntityId {
+  protected static normalize(value: string): string {
     const normalized = value.trim();
 
     if (normalized.length < 3) {
       throw new DomainError("Identificador deve possuir pelo menos 3 caracteres.");
     }
 
-    return new EntityId(normalized);
+    return normalized;
   }
 
-  static generate(prefix = "id"): EntityId {
+  protected static generateValue(prefix = "id"): string {
     const random = Math.random().toString(36).slice(2, 10);
-    return new EntityId(`${prefix}_${Date.now().toString(36)}_${random}`);
+    return `${prefix}_${Date.now().toString(36)}_${random}`;
   }
 
   equals(other: EntityId): boolean {

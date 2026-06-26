@@ -12,7 +12,6 @@ import { ProfessorId } from "./value-objects/ProfessorId.js";
 import { TurmaId } from "./value-objects/TurmaId.js";
 
 type ChamadaProps = {
-  id: ChamadaId;
   aulaId: AulaId;
   turmaId: TurmaId;
   professorId: ProfessorId;
@@ -23,9 +22,9 @@ type ChamadaProps = {
   registros: RegistroDePresenca[];
 };
 
-export class Chamada extends AggregateRoot {
-  private constructor(private readonly props: ChamadaProps) {
-    super();
+export class Chamada extends AggregateRoot<ChamadaId> {
+  private constructor(id: ChamadaId, private readonly props: ChamadaProps) {
+    super(id);
   }
 
   static criar(params: {
@@ -38,15 +37,17 @@ export class Chamada extends AggregateRoot {
       throw new DomainError("Chamada deve possuir pelo menos um aluno esperado.");
     }
 
-    const chamada = new Chamada({
-      id: ChamadaId.generate("chamada"),
-      aulaId: params.aulaId,
-      turmaId: params.turmaId,
-      professorId: params.professorId,
-      alunosEsperados: [...params.alunosEsperados],
-      status: StatusChamada.Planejada,
-      registros: [],
-    });
+    const chamada = new Chamada(
+      ChamadaId.generate(),
+      {
+        aulaId: params.aulaId,
+        turmaId: params.turmaId,
+        professorId: params.professorId,
+        alunosEsperados: [...params.alunosEsperados],
+        status: StatusChamada.Planejada,
+        registros: [],
+      },
+    );
 
     chamada.addEvent({
       name: "ChamadaCriada",
@@ -57,10 +58,6 @@ export class Chamada extends AggregateRoot {
     });
 
     return chamada;
-  }
-
-  get id(): ChamadaId {
-    return this.props.id;
   }
 
   get aulaId(): AulaId {
