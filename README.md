@@ -104,25 +104,8 @@ Implementação criada:
 | FaltaRegistrada | Ao encerrar chamada com aluno ausente | chamadaId, alunoId, registradoEm | Integração | Pode ser consumido pelo acompanhamento de frequência. |
 | ChamadaEncerrada | Quando a chamada é finalizada | chamadaId, totalPresentes, totalFaltas | Integração | Pode disparar relatórios e atualização de frequência. |
 
-## 6) Como Executar
 
-```bash
-npm install
-npm run build
-npm start
-```
-
-O arquivo `src/index.ts` demonstra o fluxo:
-
-1. cria um professor e três alunos no contexto de Gestão Acadêmica;
-2. cria uma chamada usando apenas os IDs do professor e dos alunos;
-3. abre a chamada com código e janela de resposta;
-4. registra presença de dois alunos;
-5. encerra a chamada;
-6. gera falta para o aluno ausente;
-7. exibe os eventos gerados.
-
-## 7) Diagrama
+## 6) Diagrama
 
 ```mermaid
 classDiagram
