@@ -2,27 +2,8 @@
 
 Implementação em TypeScript do domínio **Controle de Presença**, usando Entidades, Value Objects, Aggregate Root, Repositório, Eventos de Domínio e invariantes de negócio. O projeto também inclui uma pequena modelagem do contexto **Gestão Acadêmica** para representar `Pessoa`, `Aluno` e `Professor`.
 
-## 1) Sobre o Domínio Escolhido
 
-**Nome do domínio:** Controle de Presença
-
-**Objetivo do sistema:** simplificar o processo de chamada dos professores, garantindo o registro correto da presença dos alunos em cada aula.
-
-**Principais atores:** professor, aluno e coordenação acadêmica.
-
-**Bounded Contexts propostos:**
-
-| Origem | Destino | Tipo de relacionamento | Explicação |
-|---|---|---|---|
-| Gestão Acadêmica (U) | Controle de Presença (D) | Customer/Supplier | Fornece professores, alunos, turmas, aulas e matrículas para a realização da chamada. |
-| Integrações Externas (U) | Controle de Presença (D) | ACL | Traduz dados externos, como participantes do Teams, para registros de presença do sistema. |
-| Controle de Presença (U) | Acompanhamento de Frequência (D) | Published Language | Publica presenças e faltas para cálculo da frequência e risco de reprovação. |
-| Controle de Presença (U) | Relatórios e Exportações (D) | Published Language | Disponibiliza dados validados das chamadas para relatórios em PDF, Excel e JSON. |
-| Acompanhamento de Frequência (U) | Notificações de Faltas (D) | Published Language | Publica alertas de frequência para envio de notificações. |
-
-Legenda: **U** = Upstream, **D** = Downstream, **ACL** = Anti-Corruption Layer.
-
-## 2) Entidades vs Value Objects
+## 1) Entidades vs Value Objects
 
 | Elemento | Tipo | Por quê? |
 |---|---|---|
@@ -39,7 +20,7 @@ Legenda: **U** = Upstream, **D** = Downstream, **ACL** = Anti-Corruption Layer.
 
 `Aluno` e `Professor` herdam de `Pessoa` porque compartilham dados comuns. Mesmo assim, eles não ficam dentro do agregado `Chamada`; a chamada mantém apenas `AlunoId` e `ProfessorId`.
 
-## 3) Agregados e Aggregate Root
+## 2) Agregados e Aggregate Root
 
 **Agregado Principal:** `Chamada`
 
@@ -69,7 +50,7 @@ Pessoa
 
 `Pessoa` é uma entidade abstrata usada para compartilhar atributos comuns. `Aluno` e `Professor` são entidades diferentes porque possuem papéis e dados específicos no domínio acadêmico.
 
-## 4) Invariantes e Máquina de Estados
+## 3) Invariantes e Máquina de Estados
 
 **Invariantes:**
 
@@ -96,7 +77,7 @@ Regras:
 - Encerrada -> RegistrarPresenca: bloqueado.
 ```
 
-## 5) Repositório do Agregado
+## 4) Repositório do Agregado
 
 O repositório trabalha apenas com a Aggregate Root `Chamada`.
 
@@ -113,7 +94,7 @@ Implementação criada:
 - `src/presenca/domain/repositories/ChamadaRepository.ts`
 - `src/presenca/infrastructure/InMemoryChamadaRepository.ts`
 
-## 6) Eventos de Domínio
+## 5) Eventos de Domínio
 
 | Evento | Quando ocorre | Payload mínimo | Interno/Integração | Observações |
 |---|---|---|---|---|
@@ -123,7 +104,7 @@ Implementação criada:
 | FaltaRegistrada | Ao encerrar chamada com aluno ausente | chamadaId, alunoId, registradoEm | Integração | Pode ser consumido pelo acompanhamento de frequência. |
 | ChamadaEncerrada | Quando a chamada é finalizada | chamadaId, totalPresentes, totalFaltas | Integração | Pode disparar relatórios e atualização de frequência. |
 
-## 7) Como Executar
+## 6) Como Executar
 
 ```bash
 npm install
@@ -141,81 +122,92 @@ O arquivo `src/index.ts` demonstra o fluxo:
 6. gera falta para o aluno ausente;
 7. exibe os eventos gerados.
 
-## 8) Diagrama
+## 7) Diagrama
 
 ```mermaid
 classDiagram
-  class Chamada {
-    +ChamadaId id
-    +AulaId aulaId
-    +TurmaId turmaId
-    +ProfessorId professorId
-    +StatusChamada status
-    +iniciar(janela, codigo)
-    +registrarPresenca(alunoId, codigo, momento)
-    +encerrar(momento)
+  namespace ControlePresenca {
+    class Chamada {
+      +ChamadaId id
+      +AulaId aulaId
+      +TurmaId turmaId
+      +ProfessorId professorId
+      +AlunoId[] alunosEsperados
+      +StatusChamada status
+      +iniciar(janela, codigo)
+      +registrarPresenca(alunoId, codigo, momento)
+      +encerrar(momento)
+    }
+
+    class RegistroDePresenca {
+      +RegistroDePresencaId id
+      +AlunoId alunoId
+      +TipoRegistroPresenca tipo
+      +Date registradoEm
+    }
+
+    class CodigoChamada {
+      +string value
+    }
+
+    class JanelaResposta {
+      +Date inicio
+      +Date fim
+    }
+
+    class ChamadaId
+    class AulaId
+    class TurmaId
+    class ProfessorId
+    class AlunoId
+    class RegistroDePresencaId
   }
 
-  class RegistroDePresenca {
-    +RegistroDePresencaId id
-    +AlunoId alunoId
-    +TipoRegistroPresenca tipo
-    +Date registradoEm
-  }
+  namespace GestaoAcademica {
+    class Pessoa {
+      +EntityId id
+      +NomePessoa nome
+      +EmailInstitucional email
+    }
 
-  class Pessoa {
-    +EntityId id
-    +NomePessoa nome
-    +EmailInstitucional email
-  }
+    class Aluno {
+      +AlunoId id
+      +string matricula
+    }
 
-  class Aluno {
-    +AlunoId id
-    +string matricula
-  }
+    class Professor {
+      +ProfessorId id
+      +string registroDocente
+    }
 
-  class Professor {
-    +ProfessorId id
-    +string registroDocente
-  }
+    class NomePessoa {
+      +string value
+    }
 
-  class CodigoChamada {
-    +string value
-    +create(value)
-    +generate()
-  }
-
-  class JanelaResposta {
-    +Date inicio
-    +Date fim
-    +contem(momento)
-  }
-
-  class Aula {
-    +AulaId id
-  }
-
-  class Turma {
-    +TurmaId id
-  }
-
-  class Professor {
-    +ProfessorId id
-  }
-
-  class Aluno {
-    +AlunoId id
+    class EmailInstitucional {
+      +string value
+    }
   }
 
   Chamada *-- RegistroDePresenca
   Chamada --> CodigoChamada
   Chamada --> JanelaResposta
-  Chamada --> Aula : por Id
-  Chamada --> Turma : por Id
-  Chamada --> Professor : por Id
-  Chamada --> Aluno : por Id
+  Chamada --> ChamadaId
+  Chamada --> AulaId
+  Chamada --> TurmaId
+  Chamada --> ProfessorId
+  Chamada --> AlunoId
+
+  RegistroDePresenca --> RegistroDePresencaId
+  RegistroDePresenca --> AlunoId
+
   Pessoa <|-- Aluno
   Pessoa <|-- Professor
+  Pessoa --> NomePessoa
+  Pessoa --> EmailInstitucional
+
+  Aluno --> AlunoId
+  Professor --> ProfessorId
 ```
 
 ## Checklist de Aceitação
