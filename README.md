@@ -3,7 +3,7 @@
 Implementação em TypeScript do domínio **Controle de Presença**, usando Entidades, Value Objects, Aggregate Root, Repositório, Eventos de Domínio e invariantes de negócio. O projeto também inclui uma pequena modelagem do contexto **Gestão Acadêmica** para representar `Pessoa`, `Aluno` e `Professor`.
 
 
-## 1) Entidades vs Value Objects
+## 🧩 2) Entidades vs Value Objects
 
 | Elemento | Tipo | Por quê? |
 |---|---|---|
@@ -20,7 +20,7 @@ Implementação em TypeScript do domínio **Controle de Presença**, usando Enti
 
 `Aluno` e `Professor` herdam de `Pessoa` porque compartilham dados comuns. Mesmo assim, eles não ficam dentro do agregado `Chamada`; a chamada mantém apenas `AlunoId` e `ProfessorId`.
 
-## 2) Agregados e Aggregate Root
+## 🏗️ 3) Agregados e Aggregate Root (AR)
 
 **Agregado Principal:** `Chamada`
 
@@ -50,7 +50,7 @@ Pessoa
 
 `Pessoa` é uma entidade abstrata usada para compartilhar atributos comuns. `Aluno` e `Professor` são entidades diferentes porque possuem papéis e dados específicos no domínio acadêmico.
 
-## 3) Invariantes e Máquina de Estados
+## 🧭 4) Invariantes e Máquina de Estados
 
 **Invariantes:**
 
@@ -77,7 +77,7 @@ Regras:
 - Encerrada -> RegistrarPresenca: bloqueado.
 ```
 
-## 4) Repositório do Agregado
+## 🗃️ 5) Repositório do Agregado (interface)
 
 O repositório trabalha apenas com a Aggregate Root `Chamada`.
 
@@ -94,7 +94,7 @@ Implementação criada:
 - `src/presenca/domain/repositories/ChamadaRepository.ts`
 - `src/presenca/infrastructure/InMemoryChamadaRepository.ts`
 
-## 5) Eventos de Domínio
+## 📣 6) Eventos de Domínio
 
 | Evento | Quando ocorre | Payload mínimo | Interno/Integração | Observações |
 |---|---|---|---|---|
@@ -105,7 +105,7 @@ Implementação criada:
 | ChamadaEncerrada | Quando a chamada é finalizada | chamadaId, totalPresentes, totalFaltas | Integração | Pode disparar relatórios e atualização de frequência. |
 
 
-## 6) Diagrama
+## 🗺️ 8) Diagrama
 
 ```mermaid
 classDiagram
