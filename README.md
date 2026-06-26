@@ -109,8 +109,38 @@ Implementação criada:
 
 ```mermaid
 classDiagram
+  namespace GestaoAcademica {
+    class Pessoa {
+      <<abstract>>
+      +EntityId id
+      +NomePessoa nome
+      +EmailInstitucional email
+    }
+
+    class Aluno {
+      +AlunoId id
+      +string matricula
+    }
+
+    class Professor {
+      +ProfessorId id
+      +string registroDocente
+    }
+
+    class NomePessoa {
+      <<Value Object>>
+      +string value
+    }
+
+    class EmailInstitucional {
+      <<Value Object>>
+      +string value
+    }
+  }
+
   namespace ControlePresenca {
     class Chamada {
+      <<Aggregate Root>>
       +ChamadaId id
       +AulaId aulaId
       +TurmaId turmaId
@@ -130,67 +160,29 @@ classDiagram
     }
 
     class CodigoChamada {
+      <<Value Object>>
       +string value
     }
 
     class JanelaResposta {
+      <<Value Object>>
       +Date inicio
       +Date fim
     }
-
-    class ChamadaId
-    class AulaId
-    class TurmaId
-    class ProfessorId
-    class AlunoId
-    class RegistroDePresencaId
   }
-
-  namespace GestaoAcademica {
-    class Pessoa {
-      +EntityId id
-      +NomePessoa nome
-      +EmailInstitucional email
-    }
-
-    class Aluno {
-      +AlunoId id
-      +string matricula
-    }
-
-    class Professor {
-      +ProfessorId id
-      +string registroDocente
-    }
-
-    class NomePessoa {
-      +string value
-    }
-
-    class EmailInstitucional {
-      +string value
-    }
-  }
-
-  Chamada *-- RegistroDePresenca
-  Chamada --> CodigoChamada
-  Chamada --> JanelaResposta
-  Chamada --> ChamadaId
-  Chamada --> AulaId
-  Chamada --> TurmaId
-  Chamada --> ProfessorId
-  Chamada --> AlunoId
-
-  RegistroDePresenca --> RegistroDePresencaId
-  RegistroDePresenca --> AlunoId
 
   Pessoa <|-- Aluno
   Pessoa <|-- Professor
-  Pessoa --> NomePessoa
-  Pessoa --> EmailInstitucional
+  Pessoa *-- NomePessoa
+  Pessoa *-- EmailInstitucional
 
-  Aluno --> AlunoId
-  Professor --> ProfessorId
+  Chamada *-- RegistroDePresenca
+  Chamada *-- CodigoChamada
+  Chamada *-- JanelaResposta
+
+  Chamada ..> Professor : referencia por ProfessorId
+  Chamada ..> Aluno : referencia por AlunoId[]
+  RegistroDePresenca ..> Aluno : referencia por AlunoId
 ```
 
 ## Checklist de Aceitação
