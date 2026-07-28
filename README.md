@@ -3,6 +3,17 @@
 Implementação em TypeScript do domínio **Controle de Presença**, usando Entidades, Value Objects, Aggregate Root, Repositório, Eventos de Domínio e invariantes de negócio. O projeto também inclui uma pequena modelagem do contexto **Gestão Acadêmica** para representar `Pessoa`, `Aluno` e `Professor`.
 
 
+## 🩺 1) Sobre o Domínio Escolhido
+
+**Domínio:** Controle de Presença — o professor abre uma chamada para uma aula, com código e janela de resposta, e os alunos da turma confirmam presença informando o código dentro do prazo. Ao encerrar a chamada, os ausentes recebem falta automaticamente.
+
+**Principais atores:** Professor, Aluno
+
+**Contextos (Bounded Contexts):**
+
+- **Controle de Presença** (contexto principal): `Chamada`, `RegistroDePresenca`, `CodigoChamada`, `JanelaResposta`.
+- **Gestão Acadêmica** (contexto de apoio): `Pessoa`, `Aluno`, `Professor`.
+
 ## 🧩 2) Entidades vs Value Objects
 
 | Elemento | Tipo | Por quê? |
@@ -95,6 +106,8 @@ Implementação criada:
 - `src/presenca/infrastructure/InMemoryChamadaRepository.ts`
 
 ## 📣 6) Eventos de Domínio
+
+Os eventos são registrados pelo agregado durante a transação e publicados **após o commit (pós-commit)**, garantindo que os consumidores só reajam a fatos já persistidos. Eventos **internos** são consumidos dentro do próprio contexto de Controle de Presença; eventos de **integração** podem ser consumidos por outros contextos (frequência, relatórios, acompanhamento).
 
 | Evento | Quando ocorre | Payload mínimo | Interno/Integração | Observações |
 |---|---|---|---|---|
